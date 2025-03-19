@@ -143,6 +143,10 @@
             <p id="result"></p>
         </div>
     </div>
+    <!-- Thêm âm thanh -->
+    <audio id="win-sound" src="thang.mp3"></audio>
+    <audio id="lose-sound" src="thua.mp3"></audio>
+    <audio id="draw-sound" src="hoa.mp3"></audio>
     <script>
         let balance = 500000;
         let currentBet = 0;
@@ -152,6 +156,9 @@
         const betButtons = document.querySelectorAll('.bet-btn');
         const choiceButtons = document.querySelectorAll('.choice-btn');
         const allInButton = document.getElementById('all-in-btn');
+        const winSound = document.getElementById('win-sound');
+        const loseSound = document.getElementById('lose-sound');
+        const drawSound = document.getElementById('draw-sound');
 
         // Cập nhật số dư
         function updateBalance() {
@@ -193,6 +200,11 @@
 
                 displayResult(result, playerChoice, computerChoice);
                 currentBet = 0; // Reset cược sau mỗi lượt chơi
+
+                // Kiểm tra nếu người chơi hết tiền
+                if (balance === 0) {
+                    askToSellHouse();
+                }
             });
         });
 
@@ -209,6 +221,7 @@
             if (playerChoice === computerChoice) {
                 balance += currentBet; // Hoàn lại tiền nếu hòa
                 updateBalance();
+                drawSound.play(); // Phát âm thanh khi hòa
                 return 'draw';
             }
 
@@ -222,10 +235,12 @@
             if (winCases[playerChoice] === computerChoice) {
                 balance += currentBet * 2; // Thắng: nhận lại tiền cược và tiền thưởng
                 updateBalance();
+                winSound.play(); // Phát âm thanh khi thắng
                 return 'win';
             }
 
             // Các trường hợp còn lại là thua
+            loseSound.play(); // Phát âm thanh khi thua
             return 'lose';
         }
 
@@ -240,6 +255,20 @@
                 resultText += "Hòa!";
             }
             resultElement.textContent = resultText;
+        }
+
+        // Hỏi người chơi có muốn bán nhà không
+        function askToSellHouse() {
+            const sellHouse = confirm("Bạn đã hết tiền! Bạn có muốn bán nhà không?");
+            if (sellHouse) {
+                balance += 500000;
+                updateBalance();
+                alert("Bạn đã bán nhà và nhận được 500,000 VNĐ");
+            } else {
+                balance += 100000;
+                updateBalance();
+                alert("P.Đai Admin tặng bạn 100k làm vốn");
+            }
         }
     </script>
 </body>
