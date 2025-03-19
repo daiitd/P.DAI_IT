@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Kéo Búa Bao</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('');
+            background-size: cover;
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .game-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+        }
+
+        .balance {
+            margin-bottom: 20px;
+        }
+
+        .bet-section, .game-section, .result-section {
+            margin-bottom: 20px;
+        }
+
+        .bet-btn, .choice-btn {
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .choice-btn img {
+            width: 50px;
+            height: 50px;
+        }
+
+        #result {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* Responsive design cho màn hình nhỏ hơn 600px (điện thoại) */
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 10px;
+            }
+
+            .bet-btn, .choice-btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+
+            .choice-btn img {
+                width: 40px;
+                height: 40px;
+            }
+
+            #result {
+                font-size: 18px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+        }
+
+        /* Responsive design cho màn hình nhỏ hơn 400px (điện thoại nhỏ) */
+        @media (max-width: 400px) {
+            .bet-btn, .choice-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .choice-btn img {
+                width: 30px;
+                height: 30px;
+            }
+
+            #result {
+                font-size: 16px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            h2 {
+                font-size: 18px;
+            }
+        }
+
+        a {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Game Kéo Búa Bao Đỏ Đen</h1>
+        <h1>Thắng Lên Mây Thua Bán Nhà :)) </h1>
+        <div class="balance">
+            <p>Số dư: <span id="balance">500000</span> VNĐ</p>
+        </div>
+        <div class="bet-section">
+            <h2>Đặt cược</h2>
+            <button class="bet-btn" data-amount="1000">1k</button>
+            <button class="bet-btn" data-amount="5000">5k</button>
+            <button class="bet-btn" data-amount="10000">10k</button>
+            <button class="bet-btn" data-amount="50000">50k</button>
+            <button class="bet-btn" data-amount="100000">100k</button>
+            <button class="bet-btn" data-amount="5000000">5m</button>
+            <button class="bet-btn" data-amount="10000000">10m</button>
+            <button class="bet-btn" data-amount="50000000">50m</button>
+            <button class="bet-btn" id="all-in-btn">All-in</button>
+        </div>
+        <div class="game-section">
+            <h2>Chọn kéo, búa, hoặc bao</h2>
+            <div class="choices">
+                <button class="choice-btn" data-choice="búa"><img src="bua.PNG" alt="Búa"></button>
+                <button class="choice-btn" data-choice="bao"><img src="bao.PNG" alt="Bao"></button>
+                <button class="choice-btn" data-choice="kéo"><img src="keo.PNG" alt="Kéo"></button>
+            </div>
+        </div>
+        <div class="result-section">
+            <h2>Kết quả</h2>
+            <p id="result"></p>
+        </div>
+    </div>
+    <script>
+        let balance = 500000;
+        let currentBet = 0;
+
+        const balanceElement = document.getElementById('balance');
+        const resultElement = document.getElementById('result');
+        const betButtons = document.querySelectorAll('.bet-btn');
+        const choiceButtons = document.querySelectorAll('.choice-btn');
+        const allInButton = document.getElementById('all-in-btn');
+
+        // Cập nhật số dư
+        function updateBalance() {
+            balanceElement.textContent = balance;
+        }
+
+        // Xử lý đặt cược
+        betButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                let betAmount;
+                if (button.id === 'all-in-btn') {
+                    betAmount = balance; // All-in: đặt cược toàn bộ số tiền
+                } else {
+                    betAmount = parseInt(button.getAttribute('data-amount'));
+                }
+
+                if (balance >= betAmount) {
+                    currentBet = betAmount;
+                    balance -= betAmount;
+                    updateBalance();
+                    alert(`Bạn đã đặt cược ${betAmount} VNĐ`);
+                } else {
+                    alert('Số dư không đủ để đặt cược');
+                }
+            });
+        });
+
+        // Xử lý chọn kéo, búa, bao
+        choiceButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                if (currentBet === 0) {
+                    alert('Vui lòng đặt cược trước khi chọn');
+                    return;
+                }
+
+                const playerChoice = button.getAttribute('data-choice');
+                const computerChoice = getComputerChoice();
+                const result = determineWinner(playerChoice, computerChoice);
+
+                displayResult(result, playerChoice, computerChoice);
+                currentBet = 0; // Reset cược sau mỗi lượt chơi
+            });
+        });
+
+        // Lựa chọn ngẫu nhiên của máy
+        function getComputerChoice() {
+            const choices = ['búa', 'bao', 'kéo']; // Đảm bảo khớp với giá trị data-choice
+            const randomIndex = Math.floor(Math.random() * choices.length);
+            return choices[randomIndex];
+        }
+
+        // Xác định kết quả
+        function determineWinner(playerChoice, computerChoice) {
+            // Các trường hợp hòa
+            if (playerChoice === computerChoice) {
+                balance += currentBet; // Hoàn lại tiền nếu hòa
+                updateBalance();
+                return 'draw';
+            }
+
+            // Các trường hợp người chơi thắng
+            const winCases = {
+                'búa': 'kéo', // Búa thắng Kéo
+                'kéo': 'bao', // Kéo thắng Bao
+                'bao': 'búa'  // Bao thắng Búa
+            };
+
+            if (winCases[playerChoice] === computerChoice) {
+                balance += currentBet * 2; // Thắng: nhận lại tiền cược và tiền thưởng
+                updateBalance();
+                return 'win';
+            }
+
+            // Các trường hợp còn lại là thua
+            return 'lose';
+        }
+
+        // Hiển thị kết quả
+        function displayResult(result, playerChoice, computerChoice) {
+            let resultText = `Bạn chọn: ${playerChoice} | Máy chọn: ${computerChoice}. `;
+            if (result === 'win') {
+                resultText += "Bạn thắng!";
+            } else if (result === 'lose') {
+                resultText += "Bạn thua!";
+            } else {
+                resultText += "Hòa!";
+            }
+            resultElement.textContent = resultText;
+        }
+    </script>
+</body>
+<footer> <a href="https://www.facebook.com/profile.php?id=100071108987530"><b> P.Dai Admin</b></a> </footer>
+</html>
